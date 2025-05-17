@@ -1,28 +1,39 @@
 FROM node:20-slim
 
+# Crée le dossier de travail
 WORKDIR /app
 
-# Copy package files
+# Affiche le contenu du dossier (pour debug - optionnel)
+RUN ls -la /app
+
+# Copie les fichiers de dépendances
 COPY package.json package-lock.json* ./
 
-# Install dependencies
+# Vérifie que les fichiers ont bien été copiés (pour debug - optionnel)
+RUN ls -la /app
+
+# Installe les dépendances
 RUN npm ci
 
-# Copy source files
+# Copie les autres fichiers nécessaires
 COPY tsconfig.json ./
 COPY src ./src
+COPY gcp-oauth.keys.json ./gcp-oauth.keys.json
 
-# Build the application
+# Compile le projet TypeScript
 RUN npm run build
 
-# Create directory for credentials
+# (Optionnel) Crée un dossier pour les credentials
 RUN mkdir -p /gmail-server
 
-# Set environment variables
+# Variables d'environnement
 ENV NODE_ENV=production
 
-# Expose port for OAuth flow
+# Port exposé pour Render
 EXPOSE 3000
 
-# Set entrypoint command
-ENTRYPOINT ["node", "dist/index.js"]
+# Commande de démarrage
+CMD ["node", "dist/index.js"]
+
+
+
